@@ -1,0 +1,9 @@
+- name: install citus
+  hosts: example
+  become: True
+  tasks:
+    - name: Add Citus repository for package manager
+      script: deb.sh
+
+    - name: install postgres
+      apt: name=postgresql-11-citus-8.3 update_cache=yes

@@ -1,6 +1,10 @@
 .idea/
 .terraform/
+.terraform*
 terraform.tfstate*
 terrakey
 terrakey.pub
 terraubuntu.iml
+
+playbooks/hosts
+playbooks/deb.sh
