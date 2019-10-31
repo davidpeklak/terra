@@ -16,6 +16,13 @@ resource "aws_security_group" "instance" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_instance" "example" {
@@ -27,5 +34,10 @@ resource "aws_instance" "example" {
 
 output "public_ip" {
   value       = aws_instance.example.public_ip
-  description = "The public IP address of the web server"
+  description = "The public ip of the machine"
+}
+
+output "ssh_command" {
+  value       = "ssh ubuntu@${aws_instance.example.public_ip} -i terrakey"
+  description = "The command to ssh into the machine"
 }
