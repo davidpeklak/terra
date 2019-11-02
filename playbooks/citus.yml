@@ -7,3 +7,35 @@
 
     - name: install postgres
       apt: name=postgresql-11-citus-8.3 update_cache=yes
+
+    - name: initialize cluster
+      script: initialize_cluster.sh
+      become: True
+      become_user: postgres
+      register: out
+
+    - debug: var=out.stdout_lines
+
+    - name: start coordinator and workers
+      script: start_coordinator_and_workers.sh
+      become: True
+      become_user: postgres
+      register: out
+
+    - debug: var=out.stdout_lines
+
+    - name: hook citus into some deep parts
+      script: hook_citus_into_some_deep_parts.sh
+      become: True
+      become_user: postgres
+      register: out
+
+    - debug: var=out.stdout_lines
+
+    - name: tell coordinator about workers
+      script: tell_coordinator_about_workers.sh
+      become: True
+      become_user: postgres
+      register: out
+
+    - debug: var=out.stdout_lines
