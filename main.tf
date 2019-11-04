@@ -7,13 +7,13 @@ resource "aws_key_pair" "deployer" {
   public_key = var.public_key
 }
 
-resource "aws_security_group" "instance" {
+resource "aws_security_group" "citus_sec_group" {
   name = "terraform-example-instance"
-  
+
 }
 
 resource "aws_security_group_rule" "rule_ingress_ssh" {
-  security_group_id = aws_security_group.instance.id
+  security_group_id = aws_security_group.citus_sec_group.id
   type = "ingress"
   from_port = 22
   to_port = 22
@@ -23,7 +23,7 @@ resource "aws_security_group_rule" "rule_ingress_ssh" {
 
 
 resource "aws_security_group_rule" "rule_egress_all" {
-  security_group_id = aws_security_group.instance.id
+  security_group_id = aws_security_group.citus_sec_group.id
   type = "egress"
   from_port   = 0
   to_port     = 0
@@ -31,19 +31,24 @@ resource "aws_security_group_rule" "rule_egress_all" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
-resource "aws_instance" "example" {
+resource "aws_instance" "coordinator" {
   ami           = "ami-0fd4fe10cea7264a7"
   instance_type = "t2.micro"
-  vpc_security_group_ids = [aws_security_group.instance.id]
+  vpc_security_group_ids = [aws_security_group.citus_sec_group.id]
   key_name = aws_key_pair.deployer.key_name
 }
 
-output "public_ip" {
-  value       = aws_instance.example.public_ip
-  description = "The public ip of the machine"
+output "coordinator_private_ip" {
+  value       = aws_instance.coordinator.private_ip
+  description = "Private ip of the coordinator"
 }
 
-output "ssh_command" {
-  value       = "ssh ubuntu@${aws_instance.example.public_ip} -i terrakey"
-  description = "The command to ssh into the machine"
+output "coordinator_public_ip" {
+  value       = aws_instance.coordinator.public_ip
+  description = "Public ip of the coordinator"
+}
+
+output "coordinator_ssh_command" {
+  value       = "ssh ubuntu@${aws_instance.coordinator.public_ip} -i terrakey"
+  description = "Command to ssh into the coordinator"
 }
