@@ -9,20 +9,26 @@ resource "aws_key_pair" "deployer" {
 
 resource "aws_security_group" "instance" {
   name = "terraform-example-instance"
+  
+}
 
-  ingress {
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "rule_ingress_ssh" {
+  security_group_id = aws_security_group.instance.id
+  type = "ingress"
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
 
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+
+resource "aws_security_group_rule" "rule_egress_all" {
+  security_group_id = aws_security_group.instance.id
+  type = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
 resource "aws_instance" "example" {
