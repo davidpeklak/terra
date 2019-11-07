@@ -1,5 +1,5 @@
 - name: install citus
-  hosts: example
+  hosts: all
   become: True
   tasks:
     - name: Add Citus repository for package manager
@@ -8,34 +8,41 @@
     - name: install postgres
       apt: name=postgresql-11-citus-8.3 update_cache=yes
 
-    - name: initialize cluster
-      script: initialize_cluster.sh
+    - name: preload citus extension
+      command: pg_conftool 11 main set shared_preload_libraries citus
       become: True
-      become_user: postgres
       register: out
 
     - debug: var=out.stdout_lines
 
-    - name: start coordinator and workers
-      script: start_coordinator_and_workers.sh
+    - name: pg listen on all IP interfaces
+      command: pg_conftool 11 main set listen_addresses '*'
       become: True
-      become_user: postgres
       register: out
 
     - debug: var=out.stdout_lines
 
-    - name: hook citus into some deep parts
-      script: hook_citus_into_some_deep_parts.sh
+    - name: copy pg_hga.conf
+      copy:
+        src: pg_hga.conf
+        dest: /etc/postgresql/11/main/pg_hba.conf
       become: True
-      become_user: postgres
       register: out
 
     - debug: var=out.stdout_lines
 
-    - name: tell coordinator about workers
-      script: tell_coordinator_about_workers.sh
+    - name: restart service postgresql
+      service:
+        name: postgresql
+        state: restarted
+      register: out
+
+    - debug: var=out.stdout_lines
+
+    - name: add the citus extension
+      command: psql -c "CREATE EXTENSION citus;"
       become: True
-      become_user: postgres
+      become-user: postgres
       register: out
 
     - debug: var=out.stdout_lines
