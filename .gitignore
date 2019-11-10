@@ -8,3 +8,4 @@ terraubuntu.iml
 
 playbooks/hosts
 playbooks/deb.sh
+playbooks/vars.yml

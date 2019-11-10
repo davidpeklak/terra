@@ -1,4 +1,6 @@
-- name: install citus
+# This playbook is following the instructions on
+#   https://docs.citusdata.com/en/v8.3/installation/multi_machine_debian.html#
+- name: install postgres with citus
   hosts: all
   become: True
   tasks:
@@ -42,7 +44,27 @@
     - name: add the citus extension
       command: psql -c "CREATE EXTENSION citus;"
       become: True
-      become-user: postgres
+      become_user: postgres
+      register: out
+
+    - debug: var=out.stdout_lines
+
+- name: inform coordinator about workers
+  hosts: coord
+  become: True
+  tasks:
+    - name: create sql script
+      template:
+        src: add_workers.sql.j2
+        dest: /tmp/add_workers.sql
+        mode: u=rwx,g=r,o=r
+      become: True
+      become_user: postgres
+
+    - name: run sql script
+      command: psql -f /tmp/add_workers.sql
+      become: True
+      become_user: postgres
       register: out
 
     - debug: var=out.stdout_lines

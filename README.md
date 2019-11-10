@@ -13,23 +13,10 @@ ssh-keygen -f terrakey -N ""
 
 ### Apply
 ```bash
-terraform apply -var="public_key=`cat terrakey.pub`"
-```
-
-### Ssh
-```bash
-ssh ubuntu@`terraform output public_ip` -i terrakey
+tapply.sh
 ```
 
 # Ansible
-
-### Create Ansible hosts file
-```bash
-echo "example \
-  ansible_host=`terraform output public_ip` \
-  ansible_user=ubuntu \
-  ansible_private_key_file=../terrakey" > playbooks/hosts
-```
 
 All Ansible commands that follow are to be run in the playbooks directory
 ```bash
@@ -49,5 +36,6 @@ curl https://install.citusdata.com/community/deb.sh > deb.sh
 
 ### Run playbook
 ```bash
-ansible-playbook citus.yml 
+export ANSIBLE_HOST_KEY_CHECKING=False
+ansible-playbook citus.yml --extra-vars "@vars.yml"
 ```
